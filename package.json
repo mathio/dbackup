@@ -1,0 +1,16 @@
+{
+  "name": "dbackup",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "start": "node --experimental-json-modules src/index.js"
+  },
+  "dependencies": {
+    "megajs": "^1.0.8"
+  },
+  "devDependencies": {
+    "prettier": "^2.7.1"
+  }
+}
