@@ -1,0 +1,12 @@
+build:
+  docker:
+    dbackup: Dockerfile
+run:
+  web:
+    command:
+      - yarn server
+    image: dbackup
+  backup:
+    command:
+      - yarn backup
+    image: dbackup

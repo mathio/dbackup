@@ -1,13 +1,4 @@
-const findByName = (map, name) => {
-  if (map) {
-    for (let [key, value] of map.entries()) {
-      if (value?.name === name) {
-        return map[key];
-      }
-    }
-  }
-  return null;
-};
+import { findByName } from "./find-by-name.js";
 
 export const getDir = async (parent, name) => {
   let dir = findByName(parent.children, name);

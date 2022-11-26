@@ -1,0 +1,36 @@
+h1 {
+    text-align: center;
+}
+.col-menu {
+    width: 200px;
+}
+.nav-item {
+    width: 100%;
+}
+.nav-link {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.wait {
+    cursor: progress;
+}
+.wait > button {
+    cursor: progress !important;
+}
+td.options {
+    width: 180px;
+}
+.logout {
+    position: absolute;
+    top: 2px;
+    right: 3px;
+    background: white;
+}
+#toast {
+    cursor: pointer;
+    color: white;
+}
+#toast p {
+    padding: 10px 0;
+}

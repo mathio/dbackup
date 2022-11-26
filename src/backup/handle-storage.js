@@ -1,20 +1,26 @@
-import { createReadStream, statSync } from "fs";
+import * as fs from "fs";
 import { Storage } from "megajs";
-import { getDir } from "./utils/get-dir.js";
+import { getDir } from "../utils/get-dir.js";
 import { log } from "../utils/log.js";
 
 const uploadBackup = async (
   backupDir,
-  { archiveFilename, backupDirName, rootDirName }
+  { fileName, backupDirName, rootDirName }
 ) => {
-  const { size } = statSync(archiveFilename);
+  const archiveFilename = `${fileName}.lzo`;
+  const { size } = fs.statSync(archiveFilename);
 
-  const { name } = await backupDir.upload(
+  const { name, timeStamp } = await backupDir.upload(
     { name: archiveFilename, size },
-    createReadStream(archiveFilename)
+    fs.createReadStream(archiveFilename)
   ).complete;
 
   log(`Upload complete: ${rootDirName}/${backupDirName}/${name}`);
+
+  return {
+    name,
+    time: timeStamp,
+  };
 };
 
 const deleteOldBackups = async (backupDir, { daysToKeepBackups }) => {
@@ -38,15 +44,17 @@ export const handleStorage = async (config) => {
   const { backupDirName, rootDirName } = config;
 
   const storage = await new Storage({
-    email: "mldevx@gmail.com",
+    email: process.env.MEGA_EMAIL,
     password: process.env.MEGA_PWD,
   }).ready;
 
   const rootDir = await getDir(storage.root, rootDirName);
   const backupDir = await getDir(rootDir, backupDirName);
 
-  await uploadBackup(backupDir, config);
+  const result = await uploadBackup(backupDir, config);
   await deleteOldBackups(backupDir, config);
 
   await storage.close();
+
+  return result;
 };

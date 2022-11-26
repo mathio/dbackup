@@ -2,28 +2,37 @@ import { backupDatabase } from "./backup-database.js";
 import { handleStorage } from "./handle-storage.js";
 import { cleanupFiles } from "./cleanup-files.js";
 import { error } from "../utils/log.js";
+import { ROOT_DIR_NAME } from "../config.js";
 
-export const backup = async (dbName, dbConnectionString) => {
+export const backup = async (
+  dbName,
+  dbConnectionString,
+  startCallback = null
+) => {
   if (!dbName || !dbConnectionString) {
     error(`Error during backup of ${dbName}`);
     return;
   }
 
   const now = new Date().toISOString();
-  const getFilename = (ext) =>
-    `${now}-${dbName.replace(" ", "-")}-backup.${ext}`;
+  const fileName = `${now}-${dbName.replace(" ", "-")}-backup`;
 
   const config = {
     dbName,
     dbConnectionString,
     daysToKeepBackups: 30,
-    sqlFilename: getFilename("sql"),
-    archiveFilename: getFilename("sql.lzo"),
-    rootDirName: "db backup",
+    fileName,
+    rootDirName: ROOT_DIR_NAME,
     backupDirName: `${dbName}`,
   };
 
+  if (startCallback) {
+    startCallback(`${fileName}.lzo`);
+  }
+
   await backupDatabase(config);
-  await handleStorage(config);
-  await cleanupFiles(config);
+  const result = await handleStorage(config);
+  await cleanupFiles(fileName);
+
+  return result;
 };

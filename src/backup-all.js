@@ -1,21 +1,9 @@
 import { backup } from "./backup/index.js";
 import { log } from "./utils/log.js";
-
-const envVarPrefix = "DBACKUP_";
-
-const getAllDatabasesToBackup = () =>
-  Object.entries(process.env)
-    .filter(
-      ([key, value]) =>
-        key.startsWith(envVarPrefix) && value.startsWith("postgres://")
-    )
-    .map(([key, value]) => [
-      key.substring(envVarPrefix.length).replace("_", " ").toLowerCase(),
-      value,
-    ]);
+import { getAllDatabases } from "./utils/get-all-databases.js";
 
 const backupAll = async () => {
-  const dbsToBackup = getAllDatabasesToBackup();
+  const dbsToBackup = getAllDatabases();
 
   if (dbsToBackup.length === 0) {
     log("No databases to backup");

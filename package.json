@@ -5,12 +5,22 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "start": "node --experimental-json-modules src/index.js"
+    "run-node": "node --experimental-json-modules --optimize_for_size --max_old_space_size=460 --gc_interval=100",
+    "backup": "yarn run-node ./src/backup-all",
+    "server": "yarn run-node ./src/server",
+    "dev": "dotenv -- nodemon --experimental-json-modules ./src/server",
+    "dev-backup": "dotenv -- yarn backup"
   },
   "dependencies": {
+    "compression": "^1.7.4",
+    "dotenv-cli": "^6.0.0",
+    "express": "^4.18.2",
+    "express-rate-limit": "^6.7.0",
+    "handlebars": "^4.7.7",
     "megajs": "^1.0.8"
   },
   "devDependencies": {
+    "nodemon": "^2.0.20",
     "prettier": "^2.7.1"
   }
 }

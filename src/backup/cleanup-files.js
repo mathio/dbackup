@@ -1,4 +1,9 @@
-import { exec } from "./utils/exec.js";
+import * as fs from "fs";
 
-export const cleanupFiles = ({ archiveFilename, sqlFilename }) =>
-  exec(`rm ${sqlFilename} ${archiveFilename}`);
+export const cleanupFiles = async (fileName) => {
+  fs.readdirSync(".").forEach((file) => {
+    if (file.startsWith(fileName)) {
+      fs.unlinkSync(file);
+    }
+  });
+};
