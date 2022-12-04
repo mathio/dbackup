@@ -2,6 +2,7 @@ import * as fs from "fs";
 import { Storage } from "megajs";
 import { getDir } from "../utils/get-dir.js";
 import { log } from "../utils/log.js";
+import { cleanupFiles } from "./cleanup-files.js";
 
 const uploadBackup = async (
   backupDir,
@@ -15,7 +16,7 @@ const uploadBackup = async (
     fs.createReadStream(archiveFilename)
   ).complete;
 
-  log(`Upload complete: ${rootDirName}/${backupDirName}/${name}`);
+  log(`Upload complete: ${backupDirName}/${name}`);
 
   return {
     name,
@@ -40,7 +41,7 @@ const deleteOldBackups = async (backupDir, { daysToKeepBackups }) => {
   }
 };
 
-export const handleStorage = async (config) => {
+const handlStoreBackup = async (config) => {
   const { backupDirName, rootDirName } = config;
 
   const storage = await new Storage({
@@ -57,4 +58,30 @@ export const handleStorage = async (config) => {
   await storage.close();
 
   return result;
+};
+
+const storageQueue = [];
+let processing = false;
+
+const processStorageQueue = async () => {
+  if (processing) {
+    return;
+  }
+  const config = storageQueue.pop();
+  if (config) {
+    processing = true;
+    const { backupDirName, fileName } = config;
+    log(`Process from queue: ${backupDirName}/${fileName}`);
+    await handlStoreBackup(config);
+    await cleanupFiles(fileName);
+    processing = false;
+    await processStorageQueue();
+  }
+};
+
+export const handleStorage = async (config) => {
+  const { backupDirName, fileName } = config;
+  log(`Add to queue: ${backupDirName}/${fileName}`);
+  storageQueue.push(config);
+  await processStorageQueue();
 };

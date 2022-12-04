@@ -1,6 +1,5 @@
 import { backupDatabase } from "./backup-database.js";
 import { handleStorage } from "./handle-storage.js";
-import { cleanupFiles } from "./cleanup-files.js";
 import { error } from "../utils/log.js";
 import { ROOT_DIR_NAME } from "../config.js";
 
@@ -31,8 +30,5 @@ export const backup = async (
   }
 
   await backupDatabase(config);
-  const result = await handleStorage(config);
-  await cleanupFiles(fileName);
-
-  return result;
+  return await handleStorage(config);
 };

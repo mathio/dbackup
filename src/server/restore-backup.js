@@ -7,10 +7,10 @@ import { decompressFile } from "../utils/decompress-file.js";
 const restoreDatabase = async (backupPath) => {
   const [dbName, fileName] = backupPath.split("/");
 
-  const [, dbConnectionString] =
+  const [, dbString] =
     getAllDatabases().find(([name]) => name === dbName) || [];
 
-  if (!dbConnectionString) {
+  if (!dbString) {
     return false;
   }
 
@@ -19,8 +19,7 @@ const restoreDatabase = async (backupPath) => {
   );
   const bkpFileName = await decompressFile(fileName, file);
 
-  // await exec(`psql ${dbConnectionString} -f ${bkpFileName}.sql`, true);
-  await exec(`pg_restore -d ${dbConnectionString} ${bkpFileName}.dump`, true);
+  await exec(`pg_restore -c -d ${dbString} ${bkpFileName}.dump`, true);
 
   await cleanupFiles(bkpFileName);
   return true;

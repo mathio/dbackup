@@ -191,11 +191,11 @@ document.querySelectorAll("button.new").forEach((button) => {
           "success"
         );
       } else {
-        setTimeout(checkBackup, 5_000);
+        setTimeout(checkBackup, 3_000);
       }
     };
 
-    setTimeout(checkBackup, 30_000);
+    setTimeout(checkBackup, 5_000);
   };
 });
 
