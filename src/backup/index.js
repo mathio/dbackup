@@ -1,6 +1,6 @@
 import { backupDatabase } from "./backup-database.js";
 import { handleStorage } from "./handle-storage.js";
-import { error } from "../utils/log.js";
+import { error, log } from "../utils/log.js";
 import { ROOT_DIR_NAME } from "../config.js";
 
 export const backup = async (
@@ -9,7 +9,7 @@ export const backup = async (
   startCallback = null
 ) => {
   if (!dbName || !dbConnectionString) {
-    error(`Error during backup of ${dbName}`);
+    error(`ERROR: Unable to backup ${dbName}`);
     return;
   }
 
@@ -29,6 +29,11 @@ export const backup = async (
     startCallback(`${fileName}.lzo`);
   }
 
-  await backupDatabase(config);
-  return await handleStorage(config);
+  try {
+    await backupDatabase(config);
+    return await handleStorage(config);
+  } catch (e) {
+    error(`ERROR: Failure while backing up ${dbName}`);
+    console.error(e);
+  }
 };
