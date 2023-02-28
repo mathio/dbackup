@@ -5,6 +5,7 @@ import { PAGE_TITLE, ROOT_DIR_NAME } from "../config.js";
 import { getDir } from "../utils/get-dir.js";
 import { formatDate } from "../utils/format-date.js";
 import { sortBy } from "../utils/sort-by.js";
+import { humanSize } from "../utils/human-size.js";
 
 const getBackups = async () => {
   const storage = await new Storage({
@@ -22,10 +23,11 @@ const getBackups = async () => {
       backup: name,
       files: children
         ?.filter((c) => !c.directory)
-        .map(({ name, timestamp }) => ({
+        .map(({ name, timestamp, size }) => ({
           name,
           timestamp,
           date: formatDate(timestamp),
+          size: humanSize(size),
         }))
         .sort(sortBy("timestamp", false)),
     };
