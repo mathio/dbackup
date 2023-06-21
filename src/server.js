@@ -1,4 +1,5 @@
 import express from "express";
+import secure from "express-force-https";
 import compression from "compression";
 import rateLimit from "express-rate-limit";
 import { auth, logout } from "./server/auth.js";
@@ -12,6 +13,7 @@ import { removeBackup } from "./server/remove-backup.js";
 const app = express();
 const port = process.env.PORT || 3000;
 
+app.use(secure);
 app.use(compression());
 app.use(
   rateLimit({
