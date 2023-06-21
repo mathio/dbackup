@@ -168,7 +168,7 @@ document.querySelectorAll("button.new").forEach((button) => {
     const row = document.createElement("tr");
     row.id = `${name}/${filename}`;
     row.className = "table-info wait";
-    row.innerHTML = `<td>Creating backup, please wait...</td><td>now</td><td></td>`;
+    row.innerHTML = `<td>Creating backup, please wait...</td><td>now</td><td></td><td></td>`;
     tableBody.prepend(row);
 
     const checkBackup = async () => {
@@ -177,7 +177,7 @@ document.querySelectorAll("button.new").forEach((button) => {
       });
       const { ready, ...file } = await response.json();
       if (ready) {
-        row.innerHTML = `<td>${file.name}</td><td>${file.date}</td><td>${buttons}</td>`;
+        row.innerHTML = `<td>${file.name}</td><td>${file.date}</td><td>${file.size}</td><td>${buttons}</td>`;
         row.classList.remove("table-info");
         row.classList.remove("wait");
 
