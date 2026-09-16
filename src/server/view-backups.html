@@ -1,85 +1,221 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-accent="{{theme}}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <title>{{title}}</title>
-  <link rel="stylesheet" href="/bootstrap.min.css" />
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
-  <div id="toast"></div>
-  <div class="container">
-    <h1>{{title}}</h1>
-    <a class="btn btn-sm btn-outline-danger logout" id="logout" href="/logout">logout</a>
-    <div class="row">
-      <div class="col col-1 col-menu">
-        <ul class="nav nav-pills flex-column">
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <svg class="icon-stroke" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>
+        <span class="brand-word">{{title}}</span>
+      </div>
+      <div class="sidebar-scroll">
+        <div class="sidebar-section-label">Databases</div>
+        <ul class="db-list">
           {{#each backups}}
-          <li class="nav-item">
-            <a class="nav-link" id="link-{{backup}}" href="#{{backup}}">
-              {{this.backup}}
-              {{#unless connected}}
-              <span class="disconnected-icon">!</span>
-              {{/unless}}
+          <li class="db-item">
+            <a href="#{{backup}}" id="link-{{backup}}">
+              <span class="status-dot{{#unless connected}} off{{/unless}}"></span>
+              <span class="db-item-name">{{backup}}</span>
+              <span class="db-item-count">{{#if ../storageError}}?{{else}}{{files.length}}{{/if}}</span>
             </a>
           </li>
           {{/each}}
         </ul>
       </div>
-      <div class="col">
-        {{#each backups}}
-          {{#with this}}
-            <div class="backup mt-2" id="{{backup}}">
-              <span class="tooltip-wrap float-end" {{#unless connected}}data-tooltip="Database not connected, check env vars"{{/unless}}>
-                <button class="btn btn-sm btn-primary new" id="new-{{backup}}" {{#unless connected}}disabled{{/unless}}>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-database-fill-add" viewBox="0 0 16 16"><path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm.5-5v1h1a.5.5 0 0 1 0 1h-1v1a.5.5 0 0 1-1 0v-1h-1a.5.5 0 0 1 0-1h1v-1a.5.5 0 0 1 1 0ZM8 1c-1.573 0-3.022.289-4.096.777C2.875 2.245 2 2.993 2 4s.875 1.755 1.904 2.223C4.978 6.711 6.427 7 8 7s3.022-.289 4.096-.777C13.125 5.755 14 5.007 14 4s-.875-1.755-1.904-2.223C11.022 1.289 9.573 1 8 1Z"/><path d="M2 7v-.839c.457.432 1.004.751 1.49.972C4.722 7.693 6.318 8 8 8s3.278-.307 4.51-.867c.486-.22 1.033-.54 1.49-.972V7c0 .424-.155.802-.411 1.133a4.51 4.51 0 0 0-4.815 1.843A12.31 12.31 0 0 1 8 10c-1.573 0-3.022-.289-4.096-.777C2.875 8.755 2 8.007 2 7Zm6.257 3.998L8 11c-1.682 0-3.278-.307-4.51-.867-.486-.22-1.033-.54-1.49-.972V10c0 1.007.875 1.755 1.904 2.223C4.978 12.711 6.427 13 8 13h.027a4.552 4.552 0 0 1 .23-2.002Zm-.002 3L8 14c-1.682 0-3.278-.307-4.51-.867-.486-.22-1.033-.54-1.49-.972V13c0 1.007.875 1.755 1.904 2.223C4.978 15.711 6.427 16 8 16c.536 0 1.058-.034 1.555-.097a4.507 4.507 0 0 1-1.3-1.905Z"/></svg>
-                  new backup
-                </button>
-              </span>
-              <h2>{{backup}}</h2>
-              {{#unless connected}}
-              <div class="alert alert-danger py-1 px-2">
-                Database not connected, check env vars
-              </div>
-              {{/unless}}
-              <table class="table table-striped" id="table-{{backup}}">
-                <thead>
-                  <tr><th>name</th><th>date</th><th>size</th><th>options</th></tr>
-                </thead>
-                <tbody>
-                  {{#each files}}
-                    <tr id="{{../backup}}/{{name}}">
-                      <td>{{name}}</td>
-                      <td>{{date}}</td>
-                      <td>{{size}}</td>
-                      <td class="options">
-                        <span class="tooltip-wrap" {{#unless ../connected}}data-tooltip="Database not connected, check env vars"{{/unless}}>
-                          <button class="btn btn-sm btn-primary res" {{#unless ../connected}}disabled{{/unless}}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-database-fill-up" viewBox="0 0 16 16"><path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm.354-5.854 1.5 1.5a.5.5 0 0 1-.708.708L13 11.707V14.5a.5.5 0 0 1-1 0v-2.793l-.646.647a.5.5 0 0 1-.708-.708l1.5-1.5a.5.5 0 0 1 .708 0ZM8 1c-1.573 0-3.022.289-4.096.777C2.875 2.245 2 2.993 2 4s.875 1.755 1.904 2.223C4.978 6.711 6.427 7 8 7s3.022-.289 4.096-.777C13.125 5.755 14 5.007 14 4s-.875-1.755-1.904-2.223C11.022 1.289 9.573 1 8 1Z"/><path d="M2 7v-.839c.457.432 1.004.751 1.49.972C4.722 7.693 6.318 8 8 8s3.278-.307 4.51-.867c.486-.22 1.033-.54 1.49-.972V7c0 .424-.155.802-.411 1.133a4.51 4.51 0 0 0-4.815 1.843A12.31 12.31 0 0 1 8 10c-1.573 0-3.022-.289-4.096-.777C2.875 8.755 2 8.007 2 7Zm6.257 3.998L8 11c-1.682 0-3.278-.307-4.51-.867-.486-.22-1.033-.54-1.49-.972V10c0 1.007.875 1.755 1.904 2.223C4.978 12.711 6.427 13 8 13h.027a4.552 4.552 0 0 1 .23-2.002Zm-.002 3L8 14c-1.682 0-3.278-.307-4.51-.867-.486-.22-1.033-.54-1.49-.972V13c0 1.007.875 1.755 1.904 2.223C4.978 15.711 6.427 16 8 16c.536 0 1.058-.034 1.555-.097a4.507 4.507 0 0 1-1.3-1.905Z"/></svg>
-                          </button>
-                        </span>
-                        <button class="btn btn-sm btn-secondary down sql">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filetype-sql" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2v-1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5L14 4.5ZM0 14.841a1.129 1.129 0 0 0 .401.823c.13.108.288.192.478.252s.411.091.665.091c.338 0 .624-.053.858-.158.237-.106.416-.252.54-.44a1.17 1.17 0 0 0 .187-.656c0-.224-.045-.41-.135-.56a1 1 0 0 0-.375-.357 2.027 2.027 0 0 0-.565-.21l-.621-.144a.97.97 0 0 1-.405-.176.369.369 0 0 1-.143-.299c0-.156.061-.284.184-.384.125-.101.296-.152.513-.152.143 0 .266.022.37.068a.624.624 0 0 1 .245.181.56.56 0 0 1 .12.258h.75a1.092 1.092 0 0 0-.199-.566 1.21 1.21 0 0 0-.5-.41 1.813 1.813 0 0 0-.78-.152c-.293 0-.552.05-.776.15-.225.099-.4.24-.528.421-.127.182-.19.395-.19.639 0 .201.04.376.123.524.082.149.199.27.351.367.153.095.332.167.54.213l.618.144c.207.049.36.113.462.193a.387.387 0 0 1 .153.325c0 .11-.029.207-.085.29A.558.558 0 0 1 2 15.31c-.111.047-.249.07-.413.07-.117 0-.224-.013-.32-.04a.835.835 0 0 1-.248-.115.579.579 0 0 1-.255-.384H0Zm6.878 1.489-.507-.739c.176-.162.31-.362.401-.6.092-.239.138-.507.138-.806v-.501c0-.371-.07-.693-.208-.967a1.495 1.495 0 0 0-.589-.636c-.256-.15-.561-.225-.917-.225-.351 0-.656.075-.914.225-.256.149-.453.36-.592.636a2.138 2.138 0 0 0-.205.967v.5c0 .37.069.691.205.965.139.273.336.485.592.636a1.8 1.8 0 0 0 .914.222 1.8 1.8 0 0 0 .6-.1l.294.422h.788ZM4.262 14.2v-.522c0-.246.038-.456.114-.63a.91.91 0 0 1 .325-.398.885.885 0 0 1 .495-.138c.192 0 .357.046.495.138a.88.88 0 0 1 .325.398c.077.174.115.384.115.63v.522c0 .164-.018.312-.053.445-.035.13-.087.244-.155.34l-.106-.14-.105-.147h-.733l.451.65a.638.638 0 0 1-.251.047.872.872 0 0 1-.487-.147.916.916 0 0 1-.32-.404 1.67 1.67 0 0 1-.11-.644Zm3.986 1.057h1.696v.674H7.457v-3.999h.79v3.325Z"/></svg>
-                        </button>
-                        <button class="btn btn-sm btn-secondary down dump">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-zip-fill" viewBox="0 0 16 16"><path d="M8.5 9.438V8.5h-1v.938a1 1 0 0 1-.03.243l-.4 1.598.93.62.93-.62-.4-1.598a1 1 0 0 1-.03-.243z"/><path d="M4 0h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zm2.5 8.5v.938l-.4 1.599a1 1 0 0 0 .416 1.074l.93.62a1 1 0 0 0 1.109 0l.93-.62a1 1 0 0 0 .415-1.074l-.4-1.599V8.5a1 1 0 0 0-1-1h-1a1 1 0 0 0-1 1zm1-5.5h-1v1h1v1h-1v1h1v1H9V6H8V5h1V4H8V3h1V2H8V1H6.5v1h1v1z"/></svg>
-                        </button>
-                        <button class="btn btn-sm btn-danger del">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-octagon-fill" viewBox="0 0 16 16"><path d="M11.46.146A.5.5 0 0 0 11.107 0H4.893a.5.5 0 0 0-.353.146L.146 4.54A.5.5 0 0 0 0 4.893v6.214a.5.5 0 0 0 .146.353l4.394 4.394a.5.5 0 0 0 .353.146h6.214a.5.5 0 0 0 .353-.146l4.394-4.394a.5.5 0 0 0 .146-.353V4.893a.5.5 0 0 0-.146-.353L11.46.146zm-6.106 4.5L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708z"/></svg>
-                        </button>
-                      </td>
-                    </tr>
-                  {{/each}}
-                </tbody>
-              </table>
+      <div class="sidebar-foot">
+        <a class="signout" id="logout" href="/logout">
+          <svg class="icon-stroke" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+          <span>Sign out</span>
+        </a>
+      </div>
+    </aside>
+    <main class="main">
+      {{#each backups}}
+      {{#with this}}
+      <div class="db-panel" id="{{backup}}" hidden>
+        <div class="topbar">
+          <div>
+            <h1>{{backup}}</h1>
+          </div>
+          <div class="topbar-actions">
+            <button class="btn btn-primary new" id="new-{{backup}}" data-db="{{backup}}" {{#if @root.storageError}}disabled{{else}}{{#unless connected}}disabled{{/unless}}{{/if}}>
+              <svg class="icon-stroke" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+              New backup
+            </button>
+          </div>
+        </div>
+        <div class="content">
+          {{#if @root.storageError}}
+          <div class="banner danger">
+            <svg class="icon-stroke" viewBox="0 0 24 24"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 9v5M12 17h.01"/></svg>
+            <div>
+              <strong>Can't reach backup storage.</strong> {{@root.storageError}} Backup listings, restores, and downloads are unavailable until this is fixed.
             </div>
-          {{/with}}
-        {{/each}}
+          </div>
+          {{else}}
+          {{#unless connected}}
+          <div class="banner">
+            <svg class="icon-stroke" viewBox="0 0 24 24"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 9v5M12 17h.01"/></svg>
+            <div>
+              <strong>Not connected.</strong> Set <code>{{envVarName}}</code> to a connection string to enable new backups and restores. Existing backups below are still safe and can be downloaded or removed.
+            </div>
+          </div>
+          {{/unless}}
+          {{#if files.length}}
+          <table class="backups" id="table-{{backup}}">
+            <thead>
+              <tr>
+                <th>Backup</th>
+                <th>Created</th>
+                <th class="num">Size</th>
+                <th class="actions-col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each files}}
+              <tr id="{{../backup}}/{{name}}">
+                <td><span class="fname">{{name}}</span></td>
+                <td class="fdate">{{date}}</td>
+                <td class="num fsize tabular">{{size}}</td>
+                <td class="actions">
+                  <div class="action-group">
+                    <span class="tip" data-tip="{{#if ../connected}}Restore this backup{{else}}Reconnect to restore{{/if}}">
+                      <button class="icon-btn res" aria-label="Restore" {{#unless ../connected}}disabled{{/unless}}>
+                        <svg class="icon-stroke" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                      </button>
+                    </span>
+                    <span class="tip" data-tip="Download .sql">
+                      <button class="icon-btn down sql" aria-label="Download SQL">
+                        <svg class="icon-stroke" viewBox="0 0 24 24"><path d="M12 4v10m0 0-3.5-3.5M12 14l3.5-3.5"/><path d="M5 18h14"/></svg>
+                      </button>
+                    </span>
+                    <span class="tip" data-tip="Download .dump">
+                      <button class="icon-btn down dump" aria-label="Download dump">
+                        <svg class="icon-stroke" viewBox="0 0 24 24"><path d="M12 4v10m0 0-3.5-3.5M12 14l3.5-3.5"/><path d="M5 18h14"/><path d="M8 21h8" stroke-dasharray="1 3"/></svg>
+                      </button>
+                    </span>
+                    <span class="tip" data-tip="Delete backup">
+                      <button class="icon-btn danger del" aria-label="Delete">
+                        <svg class="icon-stroke" viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/></svg>
+                      </button>
+                    </span>
+                  </div>
+                </td>
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
+          {{else}}
+          <div class="empty-state">
+            <div class="glyph">
+              <svg class="icon-stroke" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>
+            </div>
+            <h2>No backups yet</h2>
+            <p>{{backup}} is connected but hasn't been backed up. Backups you create will be listed here.</p>
+            <button class="btn btn-primary new" data-db="{{backup}}" {{#unless connected}}disabled{{/unless}}>
+              <svg class="icon-stroke" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+              Create first backup
+            </button>
+          </div>
+          {{/if}}
+          {{/if}}
+        </div>
+      </div>
+      {{/with}}
+      {{/each}}
+      {{#unless backups.length}}
+      <div class="db-panel" id="__empty" hidden>
+        <div class="topbar">
+          <div>
+            <h1>{{#if storageError}}Storage unavailable{{else}}No databases{{/if}}</h1>
+          </div>
+        </div>
+        <div class="content">
+          {{#if storageError}}
+          <div class="banner danger">
+            <svg class="icon-stroke" viewBox="0 0 24 24"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 9v5M12 17h.01"/></svg>
+            <div>
+              <strong>Can't reach backup storage.</strong> {{storageError}}
+            </div>
+          </div>
+          {{else}}
+          <div class="empty-state">
+            <div class="glyph">
+              <svg class="icon-stroke" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>
+            </div>
+            <h2>No databases configured</h2>
+            <p>Set one or more <code>DBACKUP_&lt;name&gt;</code> environment variables with a Postgres connection string, then reload this page.</p>
+          </div>
+          {{/if}}
+        </div>
+      </div>
+      {{/unless}}
+    </main>
+  </div>
+
+  <div class="modal-overlay" id="restore-modal" hidden>
+    <div class="modal">
+      <div class="modal-icon warn">
+        <svg class="icon-stroke" viewBox="0 0 24 24"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 9v5M12 17h.01"/></svg>
+      </div>
+      <h2>Restore <span class="restore-db-name"></span> from this backup?</h2>
+      <p>This overwrites the current data in <code class="restore-db-name"></code> with the contents of <code id="restore-file-name"></code>. This can't be undone.</p>
+      <div class="field">
+        <label for="restore-confirm-input">Type <code class="restore-db-name"></code> to confirm</label>
+        <input id="restore-confirm-input" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="restore-cancel" type="button">Cancel</button>
+        <button class="btn btn-danger" id="restore-confirm" type="button" disabled>
+          <svg class="icon-stroke" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+          Restore database
+        </button>
       </div>
     </div>
   </div>
+
+  <div class="modal-overlay" id="delete-modal" hidden>
+    <div class="modal">
+      <div class="modal-icon danger">
+        <svg class="icon-stroke" viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/></svg>
+      </div>
+      <h2>Delete this backup?</h2>
+      <p><code id="delete-file-name"></code> will be permanently removed from storage. This can't be undone.</p>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="delete-cancel" type="button">Cancel</button>
+        <button class="btn btn-danger" id="delete-confirm" type="button">
+          <svg class="icon-stroke" viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/></svg>
+          Delete backup
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="signout-modal" hidden>
+    <div class="modal">
+      <div class="modal-icon danger">
+        <svg class="icon-stroke" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+      </div>
+      <h2>Sign out?</h2>
+      <p>You'll need your password again to manage backups.</p>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="signout-cancel" type="button">Cancel</button>
+        <button class="btn btn-danger" id="signout-confirm" type="button">
+          <svg class="icon-stroke" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+          Sign out
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-stack" id="toast-stack"></div>
+
   <script src="/script.js"></script>
 </body>
 </html>

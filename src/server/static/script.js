@@ -13,213 +13,357 @@ const post = async (endpoint, data) => {
   return response;
 };
 
-let toastTimeout;
+const toastIcons = {
+  success: '<path d="M5 13l4 4L19 7"/>',
+  danger: '<path d="M12 3 2 20h20L12 3Z"/><path d="M12 9v5M12 17h.01"/>',
+  info: '<path d="M12 4v10m0 0-3.5-3.5M12 14l3.5-3.5"/><path d="M5 18h14"/>',
+  trash: '<path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/>',
+};
 
-const toastMessage = (message, color) => {
-  toastTimeout && clearTimeout(toastTimeout);
+const toastMessage = (kind, message, icon = kind) => {
+  const stack = document.querySelector("#toast-stack");
+  const toast = document.createElement("div");
+  toast.className = `toast ${kind}`;
+  toast.innerHTML = `
+    <svg class="icon-stroke" viewBox="0 0 24 24">${toastIcons[icon]}</svg>
+    <div class="msg">${message}</div>
+    <button class="toast-close" aria-label="Dismiss">
+      <svg class="icon-stroke" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>`;
+  stack.appendChild(toast);
 
-  const wrapper = document.querySelector("#toast");
-  wrapper.innerHTML = `<div class="container"><p>${message}</p></div>`;
-  wrapper.className = `bg-${color}`;
-
-  toastTimeout = setTimeout(() => {
-    wrapper.innerHTML = "";
-    wrapper.className = "";
-  }, 30_000);
-
-  wrapper.onclick = () => {
-    clearTimeout(toastTimeout);
-    wrapper.innerHTML = "";
-    wrapper.className = "";
+  const remove = () => toast.remove();
+  const timeout = setTimeout(remove, 30_000);
+  toast.querySelector(".toast-close").onclick = () => {
+    clearTimeout(timeout);
+    remove();
   };
 };
 
-const buttons = `
-  <button class="btn btn-sm btn-primary res">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-database-fill-up" viewBox="0 0 16 16"><path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm.354-5.854 1.5 1.5a.5.5 0 0 1-.708.708L13 11.707V14.5a.5.5 0 0 1-1 0v-2.793l-.646.647a.5.5 0 0 1-.708-.708l1.5-1.5a.5.5 0 0 1 .708 0ZM8 1c-1.573 0-3.022.289-4.096.777C2.875 2.245 2 2.993 2 4s.875 1.755 1.904 2.223C4.978 6.711 6.427 7 8 7s3.022-.289 4.096-.777C13.125 5.755 14 5.007 14 4s-.875-1.755-1.904-2.223C11.022 1.289 9.573 1 8 1Z"/><path d="M2 7v-.839c.457.432 1.004.751 1.49.972C4.722 7.693 6.318 8 8 8s3.278-.307 4.51-.867c.486-.22 1.033-.54 1.49-.972V7c0 .424-.155.802-.411 1.133a4.51 4.51 0 0 0-4.815 1.843A12.31 12.31 0 0 1 8 10c-1.573 0-3.022-.289-4.096-.777C2.875 8.755 2 8.007 2 7Zm6.257 3.998L8 11c-1.682 0-3.278-.307-4.51-.867-.486-.22-1.033-.54-1.49-.972V10c0 1.007.875 1.755 1.904 2.223C4.978 12.711 6.427 13 8 13h.027a4.552 4.552 0 0 1 .23-2.002Zm-.002 3L8 14c-1.682 0-3.278-.307-4.51-.867-.486-.22-1.033-.54-1.49-.972V13c0 1.007.875 1.755 1.904 2.223C4.978 15.711 6.427 16 8 16c.536 0 1.058-.034 1.555-.097a4.507 4.507 0 0 1-1.3-1.905Z"/></svg>
-  </button>
-  <button class="btn btn-sm btn-secondary down sql">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filetype-sql" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2v-1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5L14 4.5ZM0 14.841a1.129 1.129 0 0 0 .401.823c.13.108.288.192.478.252s.411.091.665.091c.338 0 .624-.053.858-.158.237-.106.416-.252.54-.44a1.17 1.17 0 0 0 .187-.656c0-.224-.045-.41-.135-.56a1 1 0 0 0-.375-.357 2.027 2.027 0 0 0-.565-.21l-.621-.144a.97.97 0 0 1-.405-.176.369.369 0 0 1-.143-.299c0-.156.061-.284.184-.384.125-.101.296-.152.513-.152.143 0 .266.022.37.068a.624.624 0 0 1 .245.181.56.56 0 0 1 .12.258h.75a1.092 1.092 0 0 0-.199-.566 1.21 1.21 0 0 0-.5-.41 1.813 1.813 0 0 0-.78-.152c-.293 0-.552.05-.776.15-.225.099-.4.24-.528.421-.127.182-.19.395-.19.639 0 .201.04.376.123.524.082.149.199.27.351.367.153.095.332.167.54.213l.618.144c.207.049.36.113.462.193a.387.387 0 0 1 .153.325c0 .11-.029.207-.085.29A.558.558 0 0 1 2 15.31c-.111.047-.249.07-.413.07-.117 0-.224-.013-.32-.04a.835.835 0 0 1-.248-.115.579.579 0 0 1-.255-.384H0Zm6.878 1.489-.507-.739c.176-.162.31-.362.401-.6.092-.239.138-.507.138-.806v-.501c0-.371-.07-.693-.208-.967a1.495 1.495 0 0 0-.589-.636c-.256-.15-.561-.225-.917-.225-.351 0-.656.075-.914.225-.256.149-.453.36-.592.636a2.138 2.138 0 0 0-.205.967v.5c0 .37.069.691.205.965.139.273.336.485.592.636a1.8 1.8 0 0 0 .914.222 1.8 1.8 0 0 0 .6-.1l.294.422h.788ZM4.262 14.2v-.522c0-.246.038-.456.114-.63a.91.91 0 0 1 .325-.398.885.885 0 0 1 .495-.138c.192 0 .357.046.495.138a.88.88 0 0 1 .325.398c.077.174.115.384.115.63v.522c0 .164-.018.312-.053.445-.035.13-.087.244-.155.34l-.106-.14-.105-.147h-.733l.451.65a.638.638 0 0 1-.251.047.872.872 0 0 1-.487-.147.916.916 0 0 1-.32-.404 1.67 1.67 0 0 1-.11-.644Zm3.986 1.057h1.696v.674H7.457v-3.999h.79v3.325Z"/></svg>
-  </button>
-  <button class="btn btn-sm btn-secondary down dump">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-zip-fill" viewBox="0 0 16 16"><path d="M8.5 9.438V8.5h-1v.938a1 1 0 0 1-.03.243l-.4 1.598.93.62.93-.62-.4-1.598a1 1 0 0 1-.03-.243z"/><path d="M4 0h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zm2.5 8.5v.938l-.4 1.599a1 1 0 0 0 .416 1.074l.93.62a1 1 0 0 0 1.109 0l.93-.62a1 1 0 0 0 .415-1.074l-.4-1.599V8.5a1 1 0 0 0-1-1h-1a1 1 0 0 0-1 1zm1-5.5h-1v1h1v1h-1v1h1v1H9V6H8V5h1V4H8V3h1V2H8V1H6.5v1h1v1z"/></svg>
-  </button>
-  <button class="btn btn-sm btn-danger del">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-octagon-fill" viewBox="0 0 16 16"><path d="M11.46.146A.5.5 0 0 0 11.107 0H4.893a.5.5 0 0 0-.353.146L.146 4.54A.5.5 0 0 0 0 4.893v6.214a.5.5 0 0 0 .146.353l4.394 4.394a.5.5 0 0 0 .353.146h6.214a.5.5 0 0 0 .353-.146l4.394-4.394a.5.5 0 0 0 .146-.353V4.893a.5.5 0 0 0-.146-.353L11.46.146zm-6.106 4.5L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708z"/></svg>
-  </button>`;
+const actionButtons = () => `
+  <div class="action-group">
+    <span class="tip" data-tip="Restore this backup">
+      <button class="icon-btn res" aria-label="Restore">
+        <svg class="icon-stroke" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+      </button>
+    </span>
+    <span class="tip" data-tip="Download .sql">
+      <button class="icon-btn down sql" aria-label="Download SQL">
+        <svg class="icon-stroke" viewBox="0 0 24 24"><path d="M12 4v10m0 0-3.5-3.5M12 14l3.5-3.5"/><path d="M5 18h14"/></svg>
+      </button>
+    </span>
+    <span class="tip" data-tip="Download .dump">
+      <button class="icon-btn down dump" aria-label="Download dump">
+        <svg class="icon-stroke" viewBox="0 0 24 24"><path d="M12 4v10m0 0-3.5-3.5M12 14l3.5-3.5"/><path d="M5 18h14"/><path d="M8 21h8" stroke-dasharray="1 3"/></svg>
+      </button>
+    </span>
+    <span class="tip" data-tip="Delete backup">
+      <button class="icon-btn danger del" aria-label="Delete">
+        <svg class="icon-stroke" viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/></svg>
+      </button>
+    </span>
+  </div>`;
 
+const setRowBusy = (row, kind, label) => {
+  const actionsCell = row.querySelector("td.actions");
+  row.dataset.actionsHtml = actionsCell.innerHTML;
+  row.classList.add("row-busy", kind);
+  actionsCell.innerHTML = `<span class="busy-label"><span class="spinner"></span>${label}</span>`;
+};
+
+const clearRowBusy = (row, kind) => {
+  const actionsCell = row.querySelector("td.actions");
+  row.classList.remove("row-busy", kind);
+  actionsCell.innerHTML = row.dataset.actionsHtml || actionButtons();
+  delete row.dataset.actionsHtml;
+};
+
+const setButtonBusy = (button) => {
+  button.dataset.originalHtml = button.innerHTML;
+  button.innerHTML = '<span class="spinner"></span>';
+  button.classList.add("busy");
+};
+
+const clearButtonBusy = (button) => {
+  button.innerHTML = button.dataset.originalHtml;
+  button.classList.remove("busy");
+  delete button.dataset.originalHtml;
+};
+
+/* ---------- new backup ---------- */
+
+const tableSkeleton = (name) => `
+  <table class="backups" id="table-${name}">
+    <thead>
+      <tr><th>Backup</th><th>Created</th><th class="num">Size</th><th class="actions-col">Actions</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>`;
+
+const getOrCreateTableBody = (name) => {
+  let table = document.getElementById(`table-${name}`);
+  if (!table) {
+    const content = document.getElementById(name).querySelector(".content");
+    content.querySelector(".empty-state")?.remove();
+    content.insertAdjacentHTML("afterbegin", tableSkeleton(name));
+    table = document.getElementById(`table-${name}`);
+  }
+  return table.querySelector("tbody");
+};
+
+const handleNew = async (button) => {
+  const name = button.dataset.db;
+  button.disabled = true;
+
+  const response = await post("/api/new", { name });
+  const { filename } = await response.json();
+  button.disabled = false;
+
+  if (!filename) {
+    toastMessage("danger", "Error, unable to create new backup");
+    return;
+  }
+
+  const tbody = getOrCreateTableBody(name);
+  const row = document.createElement("tr");
+  row.id = `${name}/${filename}`;
+  row.className = "row-busy creating";
+  row.innerHTML = `
+    <td><span class="busy-label"><span class="spinner"></span>Creating backup of ${name}…</span></td>
+    <td class="fdate">just now</td>
+    <td class="num fsize tabular">—</td>
+    <td class="actions"></td>`;
+  tbody.prepend(row);
+
+  const checkBackup = async () => {
+    const response = await post("/api/check", { path: row.id });
+    const { ready, ...file } = await response.json();
+    if (ready) {
+      row.className = "";
+      row.innerHTML = `
+        <td><span class="fname">${file.name}</span></td>
+        <td class="fdate">${file.date}</td>
+        <td class="num fsize tabular">${file.size}</td>
+        <td class="actions">${actionButtons()}</td>`;
+      toastMessage("success", `${name} backed up as ${file.name}`);
+    } else {
+      setTimeout(checkBackup, 3_000);
+    }
+  };
+
+  setTimeout(checkBackup, 5_000);
+};
+
+/* ---------- download ---------- */
+
+const handleDownload = async (button) => {
+  const row = button.closest("tr");
+  const format = button.classList.contains("sql") ? "sql" : "dump";
+  const group = row.querySelector(".action-group");
+  const buttons = [...group.querySelectorAll("button")];
+
+  buttons.forEach((b) => (b.disabled = true));
+  setButtonBusy(button);
+
+  const response = await post("/api/download", { path: row.id, format });
+  const blob = await response.blob();
+
+  const anchor = document.createElement("a");
+  anchor.href = window.URL.createObjectURL(blob);
+  anchor.download = row.id.split("/")[1].replace(/\.lzo$/, `.${format}`);
+  anchor.click();
+  window.URL.revokeObjectURL(anchor.href);
+
+  toastMessage("info", `${anchor.download} downloaded`);
+
+  clearButtonBusy(button);
+  buttons.forEach((b) => (b.disabled = false));
+};
+
+/* ---------- restore (confirm dialog) ---------- */
+
+const restoreModal = document.querySelector("#restore-modal");
+const restoreInput = document.querySelector("#restore-confirm-input");
+const restoreConfirmBtn = document.querySelector("#restore-confirm");
+let pendingRestore = null;
 let restoreInProgress = false;
 
-const initResButton = (button) => {
-  const row = button.closest("tr");
-  if (row) {
-    button.onclick = async () => {
-      if (restoreInProgress) {
-        return toastMessage(
-          `Restore of database ${restoreInProgress} in progress, please wait`,
-          "danger"
-        );
-      }
-      const filename = row.id;
-      const [dbName, file] = filename.split("/");
-      if (
-        prompt(
-          `Restore backup?\n\nThis will restore your database ${dbName} to backup ${file}.\n\nType database name (${dbName}) to confirm:`
-        ) === dbName
-      ) {
-        restoreInProgress = dbName;
-        row.querySelectorAll("button").forEach((btn) => (btn.disabled = true));
-        row.classList.add("table-success");
-        row.classList.add("wait");
-
-        const response = await post("/api/restore", {
-          path: filename,
-          decompress: true,
-        });
-        const { done } = await response.json();
-
-        if (done) {
-          toastMessage(
-            `Database ${dbName} restored successfully to backup ${file}`,
-            "success"
-          );
-        } else {
-          toastMessage(`Database ${dbName} restore failed`, "danger");
-        }
-
-        restoreInProgress = false;
-        row.classList.remove("table-success");
-        row.classList.remove("wait");
-        row.querySelectorAll("button").forEach((btn) => (btn.disabled = false));
-      }
-    };
-  }
+const openRestoreModal = (row) => {
+  const [dbName, fileName] = row.id.split("/");
+  pendingRestore = { row, dbName };
+  restoreModal
+    .querySelectorAll(".restore-db-name")
+    .forEach((el) => (el.textContent = dbName));
+  document.querySelector("#restore-file-name").textContent = fileName;
+  restoreInput.value = "";
+  restoreConfirmBtn.disabled = true;
+  restoreModal.hidden = false;
+  restoreInput.focus();
 };
 
-const initDownButton = (button) => {
-  const row = button.closest("tr");
-  if (row) {
-    button.onclick = async () => {
-      const format = button.className.includes("sql") ? "sql" : "dump";
-      row.querySelectorAll("button").forEach((btn) => (btn.disabled = true));
-      row.classList.add("table-info");
-      row.classList.add("wait");
-      const filename = row.id;
-      const response = await post("/api/download", {
-        path: filename,
-        format,
-      });
-      const blob = await response.blob();
-
-      const anchor = document.createElement("a");
-      anchor.href = window.URL.createObjectURL(blob);
-      anchor.download = filename.replace(/\.lzo$/, `.${format}`);
-      anchor.click();
-      window.URL.revokeObjectURL(anchor.href);
-
-      toastMessage(`Download of backup ${anchor.download} successful`, "info");
-
-      row.classList.remove("table-info");
-      row.classList.remove("wait");
-      row.querySelectorAll("button").forEach((btn) => (btn.disabled = false));
-    };
-  }
+const closeRestoreModal = () => {
+  restoreModal.hidden = true;
+  pendingRestore = null;
 };
 
-const initDelButton = (button) => {
-  const row = button.closest("tr");
-  if (row) {
-    button.onclick = async () => {
-      if (confirm("Are you sure you want to delete this backup?")) {
-        row.querySelectorAll("button").forEach((btn) => (btn.disabled = true));
-        row.classList.add("table-danger");
-        row.classList.add("wait");
-        const response = await post("/api/remove", { path: row.id });
-        const { ok } = await response.json();
-        if (ok) {
-          row.remove();
-          toastMessage(`Backup ${row.id} was deleted`, "info");
-        } else {
-          row.classList.remove("table-danger");
-          row.classList.remove("wait");
-          toastMessage("Error while removing backup", "danger");
-        }
-      }
-    };
-  }
-};
-
-document.querySelectorAll("button.res").forEach(initResButton);
-document.querySelectorAll("button.down").forEach(initDownButton);
-document.querySelectorAll("button.del").forEach(initDelButton);
-
-document.querySelectorAll("button.new").forEach((button) => {
-  button.onclick = async () => {
-    const name = button.id.replace(/^new-/, "");
-    const response = await post("/api/new", { name });
-    const { filename } = await response.json();
-
-    if (!filename) {
-      toastMessage("Error, unable to create new backup", "danger");
-      return;
-    }
-
-    const tableBody = document.querySelector(`table#table-${name} > tbody`);
-    const row = document.createElement("tr");
-    row.id = `${name}/${filename}`;
-    row.className = "table-info wait";
-    row.innerHTML = `<td>Creating backup, please wait...</td><td>now</td><td></td><td></td>`;
-    tableBody.prepend(row);
-
-    const checkBackup = async () => {
-      const response = await post("/api/check", {
-        path: `${name}/${filename}`,
-      });
-      const { ready, ...file } = await response.json();
-      if (ready) {
-        row.innerHTML = `<td>${file.name}</td><td>${file.date}</td><td>${file.size}</td><td>${buttons}</td>`;
-        row.classList.remove("table-info");
-        row.classList.remove("wait");
-
-        initResButton(row.querySelector("button.res"));
-        initDownButton(row.querySelector("button.down.sql"));
-        initDownButton(row.querySelector("button.down.dump"));
-        initDelButton(row.querySelector("button.del"));
-
-        toastMessage(
-          `Database ${name} successfully backed up as ${file.name}`,
-          "success"
-        );
-      } else {
-        setTimeout(checkBackup, 3_000);
-      }
-    };
-
-    setTimeout(checkBackup, 5_000);
-  };
+restoreInput.addEventListener("input", () => {
+  restoreConfirmBtn.disabled =
+    !pendingRestore || restoreInput.value !== pendingRestore.dbName;
 });
 
-document.querySelector("a#logout").onclick = () => {
-  return confirm("Logout?");
+document.querySelector("#restore-cancel").onclick = closeRestoreModal;
+restoreModal.addEventListener("click", (e) => {
+  if (e.target === restoreModal) closeRestoreModal();
+});
+
+restoreConfirmBtn.onclick = async () => {
+  if (!pendingRestore || restoreConfirmBtn.disabled) return;
+
+  if (restoreInProgress) {
+    closeRestoreModal();
+    return toastMessage(
+      "danger",
+      `Restore of ${restoreInProgress} already in progress, please wait`
+    );
+  }
+
+  const { row, dbName } = pendingRestore;
+  const fileName = row.id.split("/")[1];
+  closeRestoreModal();
+
+  restoreInProgress = dbName;
+  setRowBusy(row, "restoring", `Restoring to ${dbName}…`);
+
+  const response = await post("/api/restore", { path: row.id, decompress: true });
+  const { done } = await response.json();
+
+  restoreInProgress = false;
+  clearRowBusy(row, "restoring");
+
+  if (done) {
+    toastMessage("success", `${dbName} restored from ${fileName}`);
+  } else {
+    toastMessage("danger", `Restore of ${dbName} failed`);
+  }
 };
 
-const handleNavigation = () => {
-  const link =
-    document.querySelector(
-      `a.nav-link#link-${window.location.hash.substring(1)}`
-    ) || document.querySelector(`a.nav-link`);
-  const currentName = link.id.replace(/^link-/, "");
+/* ---------- delete (confirm dialog) ---------- */
 
-  document
-    .querySelectorAll("a.nav-link")
-    .forEach((link) => link.classList.remove("active"));
-  link.classList.add("active");
-  document
-    .querySelectorAll("div.backup")
-    .forEach((link) => (link.style.display = "none"));
-  document.querySelector(`div#${currentName}`).style.display = "block";
+const deleteModal = document.querySelector("#delete-modal");
+const deleteConfirmBtn = document.querySelector("#delete-confirm");
+let pendingDelete = null;
+
+const openDeleteModal = (row) => {
+  pendingDelete = row;
+  document.querySelector("#delete-file-name").textContent = row.id.split("/")[1];
+  deleteModal.hidden = false;
+};
+
+const closeDeleteModal = () => {
+  deleteModal.hidden = true;
+  pendingDelete = null;
+};
+
+document.querySelector("#delete-cancel").onclick = closeDeleteModal;
+deleteModal.addEventListener("click", (e) => {
+  if (e.target === deleteModal) closeDeleteModal();
+});
+
+deleteConfirmBtn.onclick = async () => {
+  if (!pendingDelete) return;
+  const row = pendingDelete;
+  const fileName = row.id.split("/")[1];
+  closeDeleteModal();
+
+  row.classList.add("row-busy");
+  row.querySelectorAll("button").forEach((b) => (b.disabled = true));
+
+  const response = await post("/api/remove", { path: row.id });
+  const { ok } = await response.json();
+
+  if (ok) {
+    row.remove();
+    toastMessage("danger", `${fileName} deleted`, "trash");
+  } else {
+    row.classList.remove("row-busy");
+    row.querySelectorAll("button").forEach((b) => (b.disabled = false));
+    toastMessage("danger", "Error while removing backup");
+  }
+};
+
+/* ---------- sign out (confirm dialog) ---------- */
+
+const signoutModal = document.querySelector("#signout-modal");
+
+const openSignoutModal = () => {
+  signoutModal.hidden = false;
+};
+
+const closeSignoutModal = () => {
+  signoutModal.hidden = true;
+};
+
+document.querySelector("#signout-cancel").onclick = closeSignoutModal;
+signoutModal.addEventListener("click", (e) => {
+  if (e.target === signoutModal) closeSignoutModal();
+});
+document.querySelector("#signout-confirm").onclick = () => {
+  window.location.href = "/logout";
+};
+
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape") return;
+  if (!restoreModal.hidden) closeRestoreModal();
+  if (!deleteModal.hidden) closeDeleteModal();
+  if (!signoutModal.hidden) closeSignoutModal();
+});
+
+/* ---------- delegated action clicks ---------- */
+
+document.addEventListener("click", (e) => {
+  const newBtn = e.target.closest("button.new");
+  if (newBtn) return handleNew(newBtn);
+
+  const resBtn = e.target.closest("button.res");
+  if (resBtn) return openRestoreModal(resBtn.closest("tr"));
+
+  const downBtn = e.target.closest("button.down");
+  if (downBtn) return handleDownload(downBtn);
+
+  const delBtn = e.target.closest("button.del");
+  if (delBtn) return openDeleteModal(delBtn.closest("tr"));
+});
+
+document.querySelector("#logout").addEventListener("click", (e) => {
+  e.preventDefault();
+  openSignoutModal();
+});
+
+/* ---------- sidebar navigation ---------- */
+
+const handleNavigation = () => {
+  const hashName = decodeURIComponent(window.location.hash.substring(1));
+  const items = [...document.querySelectorAll(".db-item")];
+  const link =
+    document.getElementById(`link-${hashName}`) || items[0]?.querySelector("a");
+
+  document.querySelectorAll(".db-panel").forEach((panel) => {
+    panel.hidden = true;
+  });
+
+  if (!link) {
+    const fallback = document.getElementById("__empty");
+    if (fallback) fallback.hidden = false;
+    return;
+  }
+
+  const currentName = link.id.replace(/^link-/, "");
+  items.forEach((item) => item.classList.remove("active"));
+  link.closest(".db-item").classList.add("active");
+
+  const activePanel = document.getElementById(currentName);
+  if (activePanel) activePanel.hidden = false;
 };
 
 handleNavigation();
-
 window.addEventListener("hashchange", handleNavigation, false);

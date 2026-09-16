@@ -1,7 +1,7 @@
 import handlebars from "handlebars";
 import * as fs from "node:fs";
 import { randomFillSync } from "node:crypto";
-import { PAGE_TITLE } from "../config.js";
+import { PAGE_TITLE, THEME } from "../config.js";
 
 let authTokens = [];
 const COOKIE_NAME = "dbackup_token";
@@ -40,7 +40,13 @@ export const auth = async (req, res, next) => {
 
     res.status(403);
     res.header("Content-type", "text/html");
-    res.end(template({ title: PAGE_TITLE }));
+    res.end(
+      template({
+        title: PAGE_TITLE,
+        theme: THEME,
+        wrongPassword: req.method.toLowerCase() === "post",
+      })
+    );
   }
 };
 

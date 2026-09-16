@@ -10,6 +10,8 @@ Env vars:
 - `DBACKUP_<db-name>` with connection URI to database you want to backup (provide as many as you want, each in a separate env var)
 - `MEGA_EMAIL` and `MEGA_PWD` to backup to _mega.nz_ account. [Create account here - referral link](https://mega.nz/register/aff=rm2au3SYUXs).
 - `ADMIN_PWD` with web UI password
+- `ADMIN_TITLE` to override the web UI title (defaults to `🐘 dbackup`)
+- `ADMIN_THEME` to pick the web UI's accent color — one of `teal` (default), `copper`, `violet`, `steel`, `mono`, `garnet`, `cobalt`. Falls back to `teal` if unset or unrecognized.
 
 Requirements:
 * [pg_dump](https://www.postgresql.org/docs/current/app-pgdump.html)
