@@ -39,6 +39,11 @@
                 </button>
               </span>
               <h2>{{backup}}</h2>
+              {{#unless connected}}
+              <div class="alert alert-danger py-1 px-2">
+                Database not connected, check env vars
+              </div>
+              {{/unless}}
               <table class="table table-striped" id="table-{{backup}}">
                 <thead>
                   <tr><th>name</th><th>date</th><th>size</th><th>options</th></tr>
