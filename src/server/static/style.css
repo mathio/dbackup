@@ -64,3 +64,16 @@ td.options {
     opacity: 1;
     visibility: visible;
 }
+.disconnected-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #dc3545;
+    color: #fff;
+    font-size: 10px;
+    font-weight: bold;
+    line-height: 1;
+}

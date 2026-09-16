@@ -18,7 +18,12 @@
         <ul class="nav nav-pills flex-column">
           {{#each backups}}
           <li class="nav-item">
-            <a class="nav-link" id="link-{{backup}}" href="#{{backup}}">{{this.backup}}</a>
+            <a class="nav-link" id="link-{{backup}}" href="#{{backup}}">
+              {{this.backup}}
+              {{#unless connected}}
+              <span class="disconnected-icon">!</span>
+              {{/unless}}
+            </a>
           </li>
           {{/each}}
         </ul>

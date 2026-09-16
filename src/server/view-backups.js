@@ -19,23 +19,29 @@ const getBackups = async () => {
 
   await storage.close();
 
-  const connectedDbNames = new Set(getAllDatabases().map(([name]) => name));
+  const allDbNames = getAllDatabases().map(([name]) => name);
+  const connectedDbNames = new Set(allDbNames);
 
-  return backupDirs.sort(sortBy("name")).map(({ name, children }) => {
-    return {
-      backup: name,
-      connected: connectedDbNames.has(name),
-      files: children
-        ?.filter((c) => !c.directory)
-        .map(({ name, timestamp, size }) => ({
-          name,
-          timestamp,
-          date: formatDate(timestamp),
-          size: humanSize(size),
-        }))
-        .sort(sortBy("timestamp", false)),
-    };
-  });
+  const existingBackups = backupDirs.map(({ name, children }) => ({
+    backup: name,
+    connected: connectedDbNames.has(name),
+    files: children
+      ?.filter((c) => !c.directory)
+      .map(({ name, timestamp, size }) => ({
+        name,
+        timestamp,
+        date: formatDate(timestamp),
+        size: humanSize(size),
+      }))
+      .sort(sortBy("timestamp", false)),
+  }));
+
+  const existingNames = new Set(existingBackups.map((b) => b.backup));
+  const missingBackups = allDbNames
+    .filter((name) => !existingNames.has(name))
+    .map((name) => ({ backup: name, connected: true, files: [] }));
+
+  return [...existingBackups, ...missingBackups].sort(sortBy("backup"));
 };
 
 export const viewBackups = async (req, res) => {
