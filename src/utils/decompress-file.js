@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "node:fs";
 import { exec } from "./exec.js";
 
 const createFile = async (fileName, buffer) => {

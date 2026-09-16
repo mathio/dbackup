@@ -1,4 +1,4 @@
-import * as fs from "fs";
+import * as fs from "node:fs";
 import { cleanupFiles } from "../backup/cleanup-files.js";
 import { getFile } from "../utils/get-file.js";
 import { decompressFile } from "../utils/decompress-file.js";

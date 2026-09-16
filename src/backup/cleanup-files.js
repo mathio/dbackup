@@ -1,4 +1,4 @@
-import * as fs from "fs";
+import * as fs from "node:fs";
 
 export const cleanupFiles = async (fileName) => {
   fs.readdirSync(".").forEach((file) => {

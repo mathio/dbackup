@@ -1,5 +1,5 @@
 import handlebars from "handlebars";
-import * as fs from "fs";
+import * as fs from "node:fs";
 import { randomFillSync } from "node:crypto";
 import { PAGE_TITLE } from "../config.js";
 

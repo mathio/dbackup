@@ -1,5 +1,5 @@
 import handlebars from "handlebars";
-import * as fs from "fs";
+import * as fs from "node:fs";
 import { Storage } from "megajs";
 import { PAGE_TITLE, ROOT_DIR_NAME } from "../config.js";
 import { getDir } from "../utils/get-dir.js";

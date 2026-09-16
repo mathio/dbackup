@@ -1,4 +1,4 @@
-import * as fs from "fs";
+import * as fs from "node:fs";
 import { Storage } from "megajs";
 import { getDir } from "../utils/get-dir.js";
 import { log } from "../utils/log.js";
