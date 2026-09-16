@@ -3,14 +3,17 @@ import * as fs from "node:fs";
 import { randomFillSync } from "node:crypto";
 import { PAGE_TITLE } from "../config.js";
 
-const authTokens = [];
+let authTokens = [];
 const COOKIE_NAME = "dbackup_token";
+const SESSION_TTL_MS = 24 * 60 * 60 * 1000;
 
 export const auth = async (req, res, next) => {
+  authTokens = authTokens.filter(({ expiresAt }) => expiresAt > Date.now());
+
   const cookie = req.header("Cookie") || "";
   const [, token] = cookie.match(new RegExp(`${COOKIE_NAME}=([^;]+)`)) || [];
 
-  if (token && authTokens.includes(token)) {
+  if (token && authTokens.some((t) => t.token === token)) {
     req.token = token;
     next();
   } else {
@@ -20,8 +23,11 @@ export const auth = async (req, res, next) => {
         const buf = Buffer.alloc(64);
         const newToken = randomFillSync(buf).toString("base64");
 
-        authTokens.push(newToken);
-        res.header("Set-Cookie", `${COOKIE_NAME}=${newToken};path=/;HttpOnly;`);
+        authTokens.push({ token: newToken, expiresAt: Date.now() + SESSION_TTL_MS });
+        res.header(
+          "Set-Cookie",
+          `${COOKIE_NAME}=${newToken};path=/;HttpOnly;Secure;Max-Age=${SESSION_TTL_MS / 1000}`
+        );
         res.redirect(302, "/");
         res.end();
         return;
@@ -39,8 +45,8 @@ export const auth = async (req, res, next) => {
 };
 
 export const logout = async (req, res) => {
-  authTokens.splice(authTokens.indexOf(req.token), 1);
-  res.header("Set-Cookie", `${COOKIE_NAME}=;path=/;HttpOnly;Max-Age=-1`);
+  authTokens = authTokens.filter((t) => t.token !== req.token);
+  res.header("Set-Cookie", `${COOKIE_NAME}=;path=/;HttpOnly;Secure;Max-Age=-1`);
   res.redirect(302, "/");
   res.end();
 };
