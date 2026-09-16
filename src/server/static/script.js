@@ -51,7 +51,7 @@ const buttons = `
 let restoreInProgress = false;
 
 const initResButton = (button) => {
-  const row = button.parentNode.parentNode;
+  const row = button.closest("tr");
   if (row) {
     button.onclick = async () => {
       if (restoreInProgress) {
@@ -97,7 +97,7 @@ const initResButton = (button) => {
 };
 
 const initDownButton = (button) => {
-  const row = button.parentNode.parentNode;
+  const row = button.closest("tr");
   if (row) {
     button.onclick = async () => {
       const format = button.className.includes("sql") ? "sql" : "dump";
@@ -127,7 +127,7 @@ const initDownButton = (button) => {
 };
 
 const initDelButton = (button) => {
-  const row = button.parentNode.parentNode;
+  const row = button.closest("tr");
   if (row) {
     button.onclick = async () => {
       if (confirm("Are you sure you want to delete this backup?")) {
