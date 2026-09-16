@@ -9,6 +9,15 @@ import { checkBackup } from "./server/check-backup.js";
 import { restoreBackup } from "./server/restore-backup.js";
 import { downloadBackup } from "./server/download-backup.js";
 import { removeBackup } from "./server/remove-backup.js";
+import { error } from "./utils/log.js";
+
+const requiredEnvVars = ["ADMIN_PWD", "MEGA_EMAIL", "MEGA_PWD"];
+const missingEnvVars = requiredEnvVars.filter((name) => !process.env[name]);
+
+if (missingEnvVars.length > 0) {
+  error(`Missing required env vars: ${missingEnvVars.join(", ")}`);
+  process.exit(1);
+}
 
 const app = express();
 const port = process.env.PORT || 3000;
