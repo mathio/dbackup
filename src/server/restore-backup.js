@@ -17,9 +17,14 @@ const restoreDatabase = async (backupPath) => {
   const file = await getFile(backupPath, async (f) =>
     Buffer.from(await f.downloadBuffer(), "base64")
   );
+
+  if (!file) {
+    return false;
+  }
+
   const bkpFileName = await decompressFile(fileName, file);
 
-  await exec(`pg_restore -c -d ${dbString} ${bkpFileName}.dump`, true);
+  await exec("pg_restore", ["-c", "-d", dbString, `${bkpFileName}.dump`], true);
 
   await cleanupFiles(bkpFileName);
   return true;

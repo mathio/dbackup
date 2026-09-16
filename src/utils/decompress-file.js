@@ -10,6 +10,6 @@ const createFile = async (fileName, buffer) => {
 
 export const decompressFile = async (fileName, buffer) => {
   await createFile(fileName, buffer);
-  await exec(`lzop -dfq ${fileName} --ignore-warn`);
+  await exec("lzop", ["-dfq", fileName, "--ignore-warn"]);
   return fileName.replace(/\.lzo$/, "");
 };

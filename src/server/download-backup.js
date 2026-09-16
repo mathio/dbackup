@@ -17,6 +17,11 @@ export const downloadBackup = async (req, res) => {
     Buffer.from(await f.downloadBuffer(), "base64")
   );
 
+  if (!file) {
+    res.status(404).end();
+    return;
+  }
+
   if (format === "sql") {
     res.setHeader("Content-type", "text/plain");
     res.end(await getDecompressedFile(path, file, format));
