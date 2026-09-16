@@ -6,6 +6,7 @@ import { getDir } from "../utils/get-dir.js";
 import { formatDate } from "../utils/format-date.js";
 import { sortBy } from "../utils/sort-by.js";
 import { humanSize } from "../utils/human-size.js";
+import { getAllDatabases } from "../utils/get-all-databases.js";
 
 const getBackups = async () => {
   const storage = await new Storage({
@@ -18,9 +19,12 @@ const getBackups = async () => {
 
   await storage.close();
 
+  const connectedDbNames = new Set(getAllDatabases().map(([name]) => name));
+
   return backupDirs.sort(sortBy("name")).map(({ name, children }) => {
     return {
       backup: name,
+      connected: connectedDbNames.has(name),
       files: children
         ?.filter((c) => !c.directory)
         .map(({ name, timestamp, size }) => ({

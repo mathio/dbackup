@@ -34,3 +34,33 @@ td.options {
 #toast p {
     padding: 10px 0;
 }
+.tooltip-wrap {
+    position: relative;
+    display: inline-block;
+}
+.tooltip-wrap[data-tooltip] button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.tooltip-wrap[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s ease;
+    z-index: 10;
+    pointer-events: none;
+}
+.tooltip-wrap[data-tooltip]:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
