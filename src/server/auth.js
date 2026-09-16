@@ -15,7 +15,7 @@ export const auth = async (req, res, next) => {
     next();
   } else {
     if (req.method.toLowerCase() === "post") {
-      const pwd = req.body.pwd;
+      const pwd = req.body?.pwd;
       if (pwd && pwd === process.env.ADMIN_PWD) {
         const buf = Buffer.alloc(64);
         const newToken = randomFillSync(buf).toString("base64");

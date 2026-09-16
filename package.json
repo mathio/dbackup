@@ -13,7 +13,8 @@
     "backup": "yarn run-node ./src/backup-all",
     "server": "yarn run-node ./src/server",
     "dev": "dotenv -- nodemon --experimental-json-modules ./src/server",
-    "dev-backup": "dotenv -- yarn backup"
+    "dev-backup": "dotenv -- yarn backup",
+    "test": "node --test src/**/*.test.js"
   },
   "dependencies": {
     "compression": "^1.8.1",

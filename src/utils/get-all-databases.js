@@ -1,6 +1,7 @@
 const envVarPrefix = "DBACKUP_";
 
-const isConnectionString = (value) => value.startsWith("postgres://");
+const isConnectionString = (value) =>
+  typeof value === "string" && value.startsWith("postgres://");
 
 const getConnectionString = (value) => {
   if (isConnectionString(value)) {
@@ -19,7 +20,7 @@ export const getAllDatabases = () =>
   Object.entries(process.env)
     .filter(
       ([key, value]) =>
-        key.startsWith(envVarPrefix) && getConnectionString(value)
+        key.startsWith(envVarPrefix) && getConnectionString(value),
     )
     .map(([key, value]) => [
       key.substring(envVarPrefix.length).replace("_", " ").toLowerCase(),
